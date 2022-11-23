@@ -12,12 +12,15 @@ border=10
 tile_width=50
 margin_left=75
 margin_top=50
-default_number_color=(0,0,0)
+default_number_color=(255,165,0)
 BLACK=(0,0,0)
 WHITE=(255,255,255)
+CYAN=(80,100,100)
+GREEN=(0,255,0)
 ONE=1073741913
 NINE=1073741921
 #BOARD
+
 board= [
   [ 0, 0, 0,  0, 7, 0,  0, 8, 0 ],
   [ 2, 7, 4,  9, 0, 8,  0, 0, 5 ], 
@@ -31,6 +34,7 @@ board= [
   [ 3, 0, 1,  8, 9, 0,  0, 4, 2 ],
   [ 0, 8, 0,  3, 0, 2,  1, 9, 6 ],
 ]
+org_board=[[board[x][y] for y in range(9)] for x in range(9)]
 
 def playerInput(Xpos,Ypos):
     i,j=Ypos-1,Xpos-1
@@ -41,7 +45,8 @@ def playerInput(Xpos,Ypos):
                     return
             if event.type==pygame.KEYDOWN:
                 #default value condition
-                
+                if(org_board[i][j]!=0):
+                    return
                 if(event.key==pygame.K_0 or event.key==pygame.K_KP0):
                     board[i][j]=int(event.unicode)
                     pygame.draw.rect(WINDOW, WHITE, (25+Xpos*tile_width+5,Ypos*tile_width+5
@@ -62,8 +67,12 @@ def fillBoard():
         for j in range(9):
             if board[i][j]==0:
                 continue
-            data=font.render(str(board[i][j]), True, default_number_color ,None)
-            WINDOW.blit(data,((j+1)*tile_width+42,(i+1)*tile_width+5))        
+            #Background Colour
+            """ pygame.draw.rect(WINDOW, (4,71,100), (75+j*tile_width+2.5,i*tile_width+50+3
+                                                     ,50-2.5,50-3.5)) """
+            data=font.render(str(board[i][j]), True, GREEN ,None)
+            WINDOW.blit(data,((j+1)*tile_width+42,(i+1)*tile_width+5))
+                    
 def drawBoard():
     WINDOW.fill((WHITE))
     for i in range(10):
