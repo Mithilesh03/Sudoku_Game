@@ -18,7 +18,19 @@ WHITE=(255,255,255)
 ONE=1073741913
 NINE=1073741921
 #BOARD
-board=[[1]*9 for i in range(9)]
+board= [
+  [ 0, 0, 0,  0, 7, 0,  0, 8, 0 ],
+  [ 2, 7, 4,  9, 0, 8,  0, 0, 5 ], 
+  [ 0, 0, 5,  0, 1, 0,  2, 7, 0 ],
+
+  [ 0, 0, 0,  4, 0, 0,  0, 6, 7 ],
+  [ 0, 0, 2,  0, 8, 0,  0, 5, 4 ],
+  [ 7, 4, 0,  5, 0, 0,  9, 0, 0 ],
+
+  [ 5, 0, 9,  1, 4, 0,  0, 0, 8 ],
+  [ 3, 0, 1,  8, 9, 0,  0, 4, 2 ],
+  [ 0, 8, 0,  3, 0, 2,  1, 9, 6 ],
+]
 
 def playerInput(Xpos,Ypos):
     i,j=Ypos-1,Xpos-1
@@ -48,6 +60,8 @@ def playerInput(Xpos,Ypos):
 def fillBoard():
     for i in range(9):
         for j in range(9):
+            if board[i][j]==0:
+                continue
             data=font.render(str(board[i][j]), True, default_number_color ,None)
             WINDOW.blit(data,((j+1)*tile_width+42,(i+1)*tile_width+5))        
 def drawBoard():
