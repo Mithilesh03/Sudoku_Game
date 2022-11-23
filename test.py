@@ -35,8 +35,7 @@ def playerInput(Xpos,Ypos):
                     pygame.draw.rect(WINDOW, WHITE, (25+Xpos*tile_width+5,Ypos*tile_width+5
                                                      ,50-border-5,50-border-5))
                     pygame.display.update()
-                if(ONE<=event.key<=NINE):
-                    print("between 0 and 1")
+                if(ONE<=event.key<=NINE or 0<event.key-48<10):
                     pygame.draw.rect(WINDOW, WHITE, (25+Xpos*tile_width+5,Ypos*tile_width+5
                                                      ,50-border-5,50-border-5))
                     data=font.render(event.unicode,True, BLACK)
