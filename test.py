@@ -146,10 +146,12 @@ def drawBoard():
     fillBoard()
     
     pygame.display.update()
+
 def drawText(text,x,y,color):
     data=font.render(text, True, color ,None)
     WINDOW.blit(data,(x,y))
     pygame.display.update()
+
 #Game Main Function
 def main():
     fade_counter=0
@@ -172,10 +174,6 @@ def main():
                     if count==0:
                         WINDOW.fill(WHITE)
                         drawText("GAME OVER!!",180,275,BLACK)
-                        if checker():
-                        else:
-                            genarator()
-                            drawBoard()
                         while True:
                             for event in pygame.event.get():
                                 if event.type==pygame.QUIT:
@@ -185,7 +183,8 @@ def main():
                                 continue
                             break                        
                 else:
-                    playerInput((x-25)//tile_width,y//tile_width)
+                    if y>=52 and x>=75 and y<=500 and x<=525:
+                        playerInput((x-25)//tile_width,(y)//tile_width)
             
         
     pygame.quit()
