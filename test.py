@@ -1,4 +1,5 @@
 import pygame,os
+import requests
 #SCREEN VARIABLES
 FPS=60
 WIDTH,HEIGHT=600,650
@@ -23,8 +24,12 @@ ONE=1073741913
 NINE=1073741921
 
 #BOARD
-board=[[1]*9 for i in range(9)]
-board[0][0]=0
+response=requests.get("https://sugoku.herokuapp.com/board?difficulty=easy")
+""" board=[[1]*9 for i in range(9)] #for testing purposes
+board[0][0]=0 """
+
+board=response.json()['board']
+
 """ board= [
   [ 0, 0, 0,  0, 7, 0,  0, 8, 0 ],
   [ 2, 7, 4,  9, 0, 8,  0, 0, 5 ], 
@@ -53,6 +58,7 @@ class Button():
         #get the mouse position
         #draw button on screen
         WINDOW.blit(self.image,(self.rect.x,self.rect.y))
+        pygame.display.update()
 
 submit_btn_img=pygame.image.load(os.path.join('images','submit_btn.png'))
 submit_btn_img.convert_alpha()
@@ -140,7 +146,10 @@ def drawBoard():
     fillBoard()
     
     pygame.display.update()
-
+def drawText(text,x,y,color):
+    data=font.render(text, True, color ,None)
+    WINDOW.blit(data,(x,y))
+    pygame.display.update()
 #Game Main Function
 def main():
     fade_counter=0
@@ -161,13 +170,22 @@ def main():
                     count=sum([i.count(0) for i in board])
                     print(count)
                     if count==0:
-                        WINDOW.fill(BLACK)
-                        data=font.render("GAME OVER!!", True, WHITE ,None)
-                        WINDOW.blit(data,(180,275))
-                        
+                        WINDOW.fill(WHITE)
+                        drawText("GAME OVER!!",180,275,BLACK)
+                        if checker():
+                        else:
+                            genarator()
+                            drawBoard()
+                        while True:
+                            for event in pygame.event.get():
+                                if event.type==pygame.QUIT:
+                                    run=False
+                                    break
+                            else:
+                                continue
+                            break                        
                 else:
                     playerInput((x-25)//tile_width,y//tile_width)
-        pygame.display.update()
             
         
     pygame.quit()
