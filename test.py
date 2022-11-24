@@ -16,12 +16,16 @@ default_number_color=(255,165,0)
 BLACK=(0,0,0)
 WHITE=(255,255,255)
 CYAN=(80,100,100)
+RED=(255,0,0)
 GREEN=(0,255,0)
+
 ONE=1073741913
 NINE=1073741921
-#BOARD
 
-board= [
+#BOARD
+board=[[1]*9 for i in range(9)]
+board[0][0]=0
+""" board= [
   [ 0, 0, 0,  0, 7, 0,  0, 8, 0 ],
   [ 2, 7, 4,  9, 0, 8,  0, 0, 5 ], 
   [ 0, 0, 5,  0, 1, 0,  2, 7, 0 ],
@@ -33,8 +37,45 @@ board= [
   [ 5, 0, 9,  1, 4, 0,  0, 0, 8 ],
   [ 3, 0, 1,  8, 9, 0,  0, 4, 2 ],
   [ 0, 8, 0,  3, 0, 2,  1, 9, 6 ],
-]
+] """
 org_board=[[board[x][y] for y in range(9)] for x in range(9)]
+
+class Button():
+    def __init__(self,x,y,image,Scale):
+        width=image.get_width()
+        height=image.get_height()
+        self.image=pygame.transform.scale(image, (int(width*Scale), int(height*Scale)))
+        self.rect=self.image.get_rect()
+        self.rect.topleft=(x,y)
+        self.clicked=False
+        
+    def draw(self):
+        #get the mouse position
+        #draw button on screen
+        WINDOW.blit(self.image,(self.rect.x,self.rect.y))
+
+submit_btn_img=pygame.image.load(os.path.join('images','submit_btn.png'))
+submit_btn_img.convert_alpha()
+submit_button = Button(210,540,submit_btn_img,0.65)
+
+def checker(x,y,q):
+    for i in range(0,9):
+        if i==y:
+            continue
+        if board[x][i]==q:
+            return False
+    for i in range(0,9):
+        if i==x:
+            continue
+        if board[i][y]==q:
+            return False
+    for i in range((x//3)*3,(x//3)*3+3):
+        for j in range((y//3)*3,(y//3)*3+3):
+            if i==x and j==y:
+                continue
+            if board[i][j]==q:
+                return False
+    return True
 
 def playerInput(Xpos,Ypos):
     i,j=Ypos-1,Xpos-1
@@ -47,17 +88,25 @@ def playerInput(Xpos,Ypos):
                 #default value condition
                 if(org_board[i][j]!=0):
                     return
+                
+                #0 value condition, Fill with empty tile
                 if(event.key==pygame.K_0 or event.key==pygame.K_KP0):
                     board[i][j]=int(event.unicode)
                     pygame.draw.rect(WINDOW, WHITE, (25+Xpos*tile_width+5,Ypos*tile_width+5
                                                      ,50-border-5,50-border-5))
                     pygame.display.update()
+                    
+                #1<=x<=9 Input:
                 if(ONE<=event.key<=NINE or 0<event.key-48<10):
                     pygame.draw.rect(WINDOW, WHITE, (25+Xpos*tile_width+5,Ypos*tile_width+5
                                                      ,50-border-5,50-border-5))
-                    data=font.render(event.unicode,True, BLACK)
-                    WINDOW.blit(data,(42+Xpos*tile_width,Ypos*tile_width+5))
                     board[i][j]=int(event.unicode)
+                    #check if the placed number is valid?
+                    if checker(i,j,board[i][j]):
+                        data=font.render(event.unicode,True, BLACK)
+                    else:
+                        data=font.render(event.unicode,True, RED)
+                    WINDOW.blit(data,(42+Xpos*tile_width,Ypos*tile_width+5))
                     pygame.display.update()
                     return
                 return
@@ -94,18 +143,32 @@ def drawBoard():
 
 #Game Main Function
 def main():
+    fade_counter=0
     pygame.init()
     clock=pygame.time.Clock()
     run=True
     drawBoard()
     while(run):
         clock.tick(FPS)
+        submit_button.draw()
         for event in pygame.event.get():
             if event.type==pygame.QUIT:
                 run=False
             if event.type==pygame.MOUSEBUTTONDOWN and event.button==1:
                 x,y=pygame.mouse.get_pos()
-                playerInput((x-25)//tile_width,y//tile_width)
+                if submit_button.rect.collidepoint((x,y)):
+                    print("CLICKED")
+                    count=sum([i.count(0) for i in board])
+                    print(count)
+                    if count==0:
+                        WINDOW.fill(BLACK)
+                        data=font.render("GAME OVER!!", True, WHITE ,None)
+                        WINDOW.blit(data,(180,275))
+                        
+                else:
+                    playerInput((x-25)//tile_width,y//tile_width)
+        pygame.display.update()
+            
         
     pygame.quit()
 
