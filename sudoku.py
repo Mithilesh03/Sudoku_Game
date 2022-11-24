@@ -26,11 +26,11 @@ NINE=1073741921
 
 #BOARD
 ans=[]
-#response=requests.get("https://sugoku.herokuapp.com/board?difficulty=easy")
-board=[[1]*9 for i in range(9)] #for testing purposes
-board[0][0]=0
+response=requests.get("https://sugoku.herokuapp.com/board?difficulty=easy")
+""" board=[[1]*9 for i in range(9)] #for testing purposes
+board[0][0]=0 """
 
-#board=response.json()['board']
+board=response.json()['board']
 
 """ board= [
   [ 0, 0, 0,  0, 7, 0,  0, 8, 0 ],
