@@ -1,5 +1,6 @@
 import pygame,os
 import requests
+import numpy as np
 #SCREEN VARIABLES
 FPS=60
 WIDTH,HEIGHT=600,650
@@ -24,11 +25,12 @@ ONE=1073741913
 NINE=1073741921
 
 #BOARD
-response=requests.get("https://sugoku.herokuapp.com/board?difficulty=easy")
-""" board=[[1]*9 for i in range(9)] #for testing purposes
-board[0][0]=0 """
+ans=[]
+#response=requests.get("https://sugoku.herokuapp.com/board?difficulty=easy")
+board=[[1]*9 for i in range(9)] #for testing purposes
+board[0][0]=0
 
-board=response.json()['board']
+#board=response.json()['board']
 
 """ board= [
   [ 0, 0, 0,  0, 7, 0,  0, 8, 0 ],
@@ -45,6 +47,27 @@ board=response.json()['board']
 ] """
 org_board=[[board[x][y] for y in range(9)] for x in range(9)]
 
+def verify():
+    for i in range(0,len(ans)):
+        if np.array_equal(board,ans[i]):
+            return True
+    return False
+
+def solve():
+    for row in range(0,9):
+        for column in range(0,9):
+            if board[row][column] == 0:
+                for number in range(1,10):
+                    if checker(row, column, number):
+                        board[row][column] = number
+                        solve()
+                        board[row][column] = 0
+
+                return
+      
+    #print(np.matrix(board))
+    ans.append(np.matrix(board))
+    #print("More possible Solutions")
 class Button():
     def __init__(self,x,y,image,Scale):
         width=image.get_width()
@@ -112,12 +135,13 @@ def playerInput(Xpos,Ypos):
                         data=font.render(event.unicode,True, BLACK)
                     else:
                         data=font.render(event.unicode,True, RED)
+                    
                     WINDOW.blit(data,(42+Xpos*tile_width,Ypos*tile_width+5))
                     pygame.display.update()
                     return
                 return
 
-def fillBoard():
+def fillBoard(board):
     for i in range(9):
         for j in range(9):
             if board[i][j]==0:
@@ -127,6 +151,7 @@ def fillBoard():
                                                      ,50-2.5,50-3.5)) """
             data=font.render(str(board[i][j]), True, GREEN ,None)
             WINDOW.blit(data,((j+1)*tile_width+42,(i+1)*tile_width+5))
+    pygame.display.update()
                     
 def drawBoard():
     WINDOW.fill((WHITE))
@@ -143,7 +168,6 @@ def drawBoard():
         pygame.draw.line(WINDOW, BLACK, (margin_left,tile_width*i+margin_top), 
                          (525,margin_top+tile_width*i), width=2)
         
-    fillBoard()
     
     pygame.display.update()
 
@@ -154,11 +178,12 @@ def drawText(text,x,y,color):
 
 #Game Main Function
 def main():
-    fade_counter=0
     pygame.init()
     clock=pygame.time.Clock()
     run=True
     drawBoard()
+    fillBoard(board)
+    solve()
     while(run):
         clock.tick(FPS)
         submit_button.draw()
@@ -173,7 +198,17 @@ def main():
                     print(count)
                     if count==0:
                         WINDOW.fill(WHITE)
-                        drawText("GAME OVER!!",180,275,BLACK)
+                        if verify():
+                            drawText("YOU WON!!",180,275,BLACK)
+                        else:
+                            #result=[ans[0][i][j] for j in range(9) for i in range(9)]
+                            result=ans[0].tolist().copy()
+                            #print("---",board)
+                            drawBoard()
+                            fillBoard(result)
+                            #drawText("Wrong Answer!",180,510,BLACK)
+                            drawText("BETTER LUCK NEXT TIME!",90,545,BLACK)
+                        
                         while True:
                             for event in pygame.event.get():
                                 if event.type==pygame.QUIT:
