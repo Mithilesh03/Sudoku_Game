@@ -1,6 +1,7 @@
 import pygame,os
 import requests
 import numpy as np
+
 #SCREEN VARIABLES
 FPS=60
 WIDTH,HEIGHT=600,650
@@ -47,6 +48,7 @@ board=response.json()['board']
 ] """
 org_board=[[board[x][y] for y in range(9)] for x in range(9)]
 
+
 def verify():
     for i in range(0,len(ans)):
         if np.array_equal(board,ans[i]):
@@ -68,6 +70,8 @@ def solve():
     #print(np.matrix(board))
     ans.append(np.matrix(board))
     #print("More possible Solutions")
+
+
 class Button():
     def __init__(self,x,y,image,Scale):
         width=image.get_width()
@@ -130,24 +134,35 @@ def playerInput(Xpos,Ypos):
                     pygame.draw.rect(WINDOW, WHITE, (25+Xpos*tile_width+5,Ypos*tile_width+5
                                                      ,50-border-5,50-border-5))
                     board[i][j]=int(event.unicode)
-                    #check if the placed number is valid?
-                    if checker(i,j,board[i][j]):
-                        data=font.render(event.unicode,True, BLACK)
-                    else:
-                        data=font.render(event.unicode,True, RED)
-                    
-                    WINDOW.blit(data,(42+Xpos*tile_width,Ypos*tile_width+5))
+                    #check if the placed number is valid
+                    updateBoard()
+                    #WINDOW.blit(data,(42+Xpos*tile_width,Ypos*tile_width+5))
                     pygame.display.update()
                     return
                 return
 
+def updateBoard():
+    for i in range(9):
+        for j in range(9):
+            if board[i][j]==0 or org_board[i][j]!=0:
+                continue
+            if checker(i,j,board[i][j]):
+                pygame.draw.rect(WINDOW, WHITE, (75+j*tile_width+3,i*tile_width+50+3
+                                                     ,50-2.5,50-3.5))
+                data=font.render(str(board[i][j]),True, BLACK)
+            else:
+                pygame.draw.rect(WINDOW, WHITE, (75+j*tile_width+3,i*tile_width+50+3
+                                                     ,50-2.5,50-3.5))
+                data=font.render(str(board[i][j]),True, RED)
+            WINDOW.blit(data,((j+1)*tile_width+42,(i+1)*tile_width+5))
+       
 def fillBoard(board):
     for i in range(9):
         for j in range(9):
             if board[i][j]==0:
                 continue
             #Background Colour
-            """ pygame.draw.rect(WINDOW, (4,71,100), (75+j*tile_width+2.5,i*tile_width+50+3
+            """ pygame.draw.rect(WINDOW, WHITE, (75+j*tile_width+2.5,i*tile_width+50+3
                                                      ,50-2.5,50-3.5)) """
             data=font.render(str(board[i][j]), True, GREEN ,None)
             WINDOW.blit(data,((j+1)*tile_width+42,(i+1)*tile_width+5))
@@ -171,12 +186,27 @@ def drawBoard():
     
     pygame.display.update()
 
+def displayImage(x,y,image,Scale):
+    width=image.get_width()
+    height=image.get_height()
+    image=pygame.transform.scale(image, (int(width*Scale), int(height*Scale)))
+    rect=image.get_rect()
+    rect.topleft=(x,y)
+    WINDOW.blit(image,(rect.x,rect.y))
+    pygame.display.update()
+
+def loadImages(img_name,x,y):
+    image=pygame.image.load(os.path.join('images',img_name)).convert_alpha()
+    displayImage(x,y,image,1)
+
 def drawText(text,x,y,color):
+    font=pygame.font.SysFont("lucidasans",35)
     data=font.render(text, True, color ,None)
     WINDOW.blit(data,(x,y))
     pygame.display.update()
 
-#Game Main Function
+
+#Game Main Functionṇ
 def main():
     pygame.init()
     clock=pygame.time.Clock()
@@ -198,8 +228,11 @@ def main():
                     print(count)
                     if count==0:
                         WINDOW.fill(WHITE)
+                        
                         if verify():
-                            drawText("YOU WON!!",180,275,BLACK)
+                            drawText("GAME OVER",200,50,BLACK)  
+                            loadImages("win.png",90,100)
+                            loadImages("bt.png",75,380)
                         else:
                             #result=[ans[0][i][j] for j in range(9) for i in range(9)]
                             result=ans[0].tolist().copy()
@@ -207,7 +240,8 @@ def main():
                             drawBoard()
                             fillBoard(result)
                             #drawText("Wrong Answer!",180,510,BLACK)
-                            drawText("BETTER LUCK NEXT TIME!",90,545,BLACK)
+                            drawText("YOU LOST!",220,0,BLACK)
+                            loadImages('lost.png',150,525)
                         
                         while True:
                             for event in pygame.event.get():
